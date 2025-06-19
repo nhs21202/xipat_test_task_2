@@ -14,6 +14,7 @@ const BlogList = ({ initialPosts }: Props) => {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(9);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const fetchPosts = useCallback(async () => {
     const res = await getPostsList({ _page: page, _limit: limit });
@@ -21,8 +22,12 @@ const BlogList = ({ initialPosts }: Props) => {
   }, [page, limit]);
 
   useEffect(() => {
-    if (page !== 1 || limit !== 9) fetchPosts();
-  }, [fetchPosts, page, limit]);
+    if (!hasFetched) {
+      setHasFetched(true);
+      return;
+    }
+    fetchPosts();
+  }, [fetchPosts, hasFetched]);
 
   return (
     <div className="container mx-auto py-10">
@@ -40,7 +45,10 @@ const BlogList = ({ initialPosts }: Props) => {
           showSizeChanger
           pageSizeOptions={["6", "9", "12", "24"]}
           onChange={(p) => setPage(p)}
-          onShowSizeChange={(_, size) => setLimit(size)}
+          onShowSizeChange={(_, size) => {
+            setLimit(size);
+            setPage(1);
+          }}
         />
       </div>
     </div>
